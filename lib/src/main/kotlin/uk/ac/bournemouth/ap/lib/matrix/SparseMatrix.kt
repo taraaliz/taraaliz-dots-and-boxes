@@ -147,7 +147,7 @@ interface SparseMatrix<out T> : Iterable<T> {
     }
 
     /**
-     * This class provides access to a single function initialising a sparse matrix by returing
+     * This class provides access to a single function initialising a sparse matrix by returning
      * either a value, or marking it sparse. It is used as receiver of the lambda, that is expected
      * to return the result of either invoking [value] or [sparse].
      */

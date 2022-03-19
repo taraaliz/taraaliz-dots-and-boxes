@@ -1,6 +1,8 @@
 package org.example.student.dotsboxgame
 
+import uk.ac.bournemouth.ap.dotsandboxeslib.ComputerPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
+import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
 import uk.ac.bournemouth.ap.dotsandboxeslib.test.TestDotsAndBoxes
 
@@ -10,6 +12,7 @@ import uk.ac.bournemouth.ap.dotsandboxeslib.test.TestDotsAndBoxes
  */
 internal class StudentDotsBoxGameTest : TestDotsAndBoxes() {
     override fun createGame(columns: Int, rows: Int, players: List<Player>): DotsAndBoxesGame {
-        return TODO("Create a game of your game type with the correct columns, rows and players")
+        return StudentDotsBoxGame(columns, rows, players)
+        TODO("Create a game of your game type with the correct columns, rows and players")
     }
 }

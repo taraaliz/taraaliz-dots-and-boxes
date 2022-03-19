@@ -6,15 +6,16 @@ import uk.ac.bournemouth.ap.lib.matrix.SparseMatrix
 import kotlin.random.Random
 
 class StudentDotsBoxGame : AbstractDotsAndBoxesGame() {
-    override val players: List<Player> = TODO("You will need to get players from your constructor")
+    override val players: List<Player> get() = this.players
 
-    override val currentPlayer: Player get()= TODO("Determine the current player, like keeping" +
+    override val currentPlayer: Player get()=
+        TODO("Determine the current player, like keeping" +
                                                            "the index into the players list")
 
-    // NOTE: you may want to me more specific in the box type if you use that type in your class
-    override val boxes: Matrix<StudentBox> = TODO("Create a matrix initialized with your own box type")
+    // NOTE: you may want to be more specific in the box type if you use that type in your class
+    override val boxes: Matrix<StudentBox> = Matrix(4,4) { x, y -> StudentBox(x, y)}
 
-    override val lines: SparseMatrix<StudentLine> = TODO("Create a matrix initialized with your own line type")
+    override val lines: SparseMatrix<StudentLine> = SparseMatrix(5, 5) { x, y -> StudentBox(x, y)}
 
     override val isFinished: Boolean
         get() = TODO("Provide this getter. Note you can make it a var to do so (with private set)")
@@ -33,9 +34,11 @@ class StudentDotsBoxGame : AbstractDotsAndBoxesGame() {
      * it being an inner class.
      */
     inner class StudentLine(lineX: Int, lineY: Int) : AbstractLine(lineX, lineY) {
-        override val isDrawn: Boolean
-            get() = TODO("Provide this getter. Note you can make it a var to do so")
-
+        override var isDrawn: Boolean
+            get() = field
+            set(value) {
+                field = value
+            }
 
         override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
             get() {

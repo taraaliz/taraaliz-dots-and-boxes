@@ -3,23 +3,20 @@ package org.example.student.dotsboxgame
 import uk.ac.bournemouth.ap.dotsandboxeslib.*
 import uk.ac.bournemouth.ap.lib.matrix.ArrayMutableSparseMatrix
 import uk.ac.bournemouth.ap.lib.matrix.Matrix
+import uk.ac.bournemouth.ap.lib.matrix.MutableSparseMatrix
 import uk.ac.bournemouth.ap.lib.matrix.SparseMatrix
 import kotlin.random.Random
 
-class StudentDotsBoxGame (override val columns, rows, players): AbstractDotsAndBoxesGame() {
-    override val players: List<Player> get() = this.players
+class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>): AbstractDotsAndBoxesGame() {
+    override val players: List<Player> = players
 
-    override val currentPlayer: Player get() = players[0]
-        ///TODO("Determine the current player, like keeping the index into the players list")
-    // how do we get the index? set to default of 0 but i think this will make it always 0
-    // make a setter that uses the field as an index value?
+    override val currentPlayer: Player = players[0]
 
     // NOTE: you may want to be more specific in the box type if you use that type in your class
-    override val boxes: Matrix<StudentBox> = Matrix(4,4) { x, y -> StudentBox(x, y)}
+    override val boxes: Matrix<StudentBox> = Matrix(columns, rows) { x, y -> StudentBox(x, y)}
 
-    override val lines: ArrayMutableSparseMatrix<StudentLine> = ArrayMutableSparseMatrix(5, 5) { x, y -> StudentLine(x, y)}
-    // ArrayMutableSparseMatrix uses a function to determine validity - give function on construction
-    // TODO made with normal matrix for now
+    override val lines: MutableSparseMatrix<StudentLine> = MutableSparseMatrix(columns+1,
+        rows*2+1, { x, y -> x < columns && (y % 2) != 0}, ::StudentLine)
 
     override val isFinished: Boolean = false
     // no getter provided as kotlin provides them by default, unless we need to do anything fancy
@@ -38,16 +35,22 @@ class StudentDotsBoxGame (override val columns, rows, players): AbstractDotsAndB
      * it being an inner class.
      */
     inner class StudentLine(lineX: Int, lineY: Int) : AbstractLine(lineX, lineY) {
-        override var isDrawn: Boolean = false // no getter or setter made - could make get with
-        // try except logic?
+        override var isDrawn: Boolean = false
 
         override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
             get() {
                 // no strict formula, depends on if line is horizontal or vertical
                 // most are x-1, y-1 and x-1, y (horizontal)
                 // vertical is x,y, and x-1, y
-
-//                return boxes[1, 1] to boxes[2,1]
+                // if odd y
+                if (if lineX % 2 != 0){
+                    x = 0
+                    y = 0
+                    a = 0
+                    b = 0
+                }
+                return boxes[x, y] to boxes[a, b]
+                // return Pair(Box1, Box2)
                 TODO("You need to look up the correct boxes for this to work")
                 // box - 1, box + 1? but how do we access box coords?
             }
@@ -55,7 +58,7 @@ class StudentDotsBoxGame (override val columns, rows, players): AbstractDotsAndB
         override fun drawLine() {
             TODO("Implement the logic for a player drawing a line. Don't forget to inform the listeners (fireGameChange, fireGameOver)")
             // NOTE read the documentation in the interface, you must also update the current player.
-            // does any logic go here?
+            // does any logic go here? yes, all logic goes here, this is where isDrawn changes
         }
     }
 

@@ -15,8 +15,11 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
     // NOTE: you may want to be more specific in the box type if you use that type in your class
     override val boxes: Matrix<StudentBox> = Matrix(columns, rows) { x, y -> StudentBox(x, y)}
 
+    // validator function checks x is less than number of columns and y is less than number of rows
+    // also that on the last column, no invalid lines exist ( where x = columns and y is odd)
     override val lines: MutableSparseMatrix<StudentLine> = MutableSparseMatrix(columns+1,
-        rows*2+1, { x, y -> x < columns && (y % 2) != 0}, ::StudentLine)
+        rows*2+1, { x, y ->
+            x < columns && (if (x == columns) {(y % 2) != 0} else y < rows)}, ::StudentLine)
 
     override val isFinished: Boolean = false
     // no getter provided as kotlin provides them by default, unless we need to do anything fancy
@@ -35,6 +38,8 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
      * it being an inner class.
      */
     inner class StudentLine(lineX: Int, lineY: Int) : AbstractLine(lineX, lineY) {
+        // even y coords are horizontal
+        // odd y coords are vertical
         override var isDrawn: Boolean = false
 
         override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
@@ -43,14 +48,73 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 // most are x-1, y-1 and x-1, y (horizontal)
                 // vertical is x,y, and x-1, y
                 // if odd y
-                if (if lineX % 2 != 0){
-                    x = 0
-                    y = 0
-                    a = 0
-                    b = 0
+                var box1_x: Int
+                var box1_y: Int
+                var box2_x: Int?
+                var box2_y: Int?
+                var Box1: StudentBox?
+                var Box2: StudentBox? = null
+
+
+
+                // handling lines with x coord 3 in a 4x4 game - lines on the right edge
+                // lines with x coord 3 and even y coord are invalid
+                // do we need to check for even y here if it is checked on creation in
+                // SpareMatrix?
+                if (lineX == columns) {
+                    // if y coord is odd - vertical
+                    if (lineY % 2 != 0) {
+                        box1_x = lineX - 1
+                        box1_y = (lineY + 1) / (columns - 1)
+                        Box1 = StudentBox(box1_x, box1_y)
+                        // how to get box coords? is this creating a new box or accessing an existing
+                        // one?
+                    }
                 }
-                return boxes[x, y] to boxes[a, b]
-                // return Pair(Box1, Box2)
+                // handling lines with x coord 0 - lines on the left edge
+                else if (lineX == 0) {
+                    box1_x = lineX
+                    box1_y = lineY / 2
+                    Box1 = StudentBox(box1_x, box1_y)
+                    // if y coord is odd (vertical), or on the borders, no second box
+                    // for the lines with even y coords (horizontal) not on the borders
+                    if (lineY % 2 == 0 || lineY != columns * 2 || lineY != 0) {
+                        box2_x = lineX
+                        box2_y = (lineY - 1) / 2
+                        Box2 = StudentBox(box2_x, box2_y)
+                    }
+                }
+                // handling all other lines
+                else {
+                    // horizontal lines only - this is reassigned for vertical lines
+                    box1_x = lineX
+                    // if on the borders
+                    if (lineY == 0 || lineY == columns*2) {
+                        box1_y = lineY / columns
+                    }
+                    else {
+                        // if line is vertical box1_x is lineX - 1 instead of lineX
+                        if (lineY % 2 != 0) {
+                            box1_x = lineX - 1
+                            // box to left of it is lineX - 1
+                        }
+//                        1 / 2 (0) - 2 % 2 (0) = 0
+//                        2 / 2 (1) - 3 % 2 (1) = 0
+//                        3 / 2 (1) - 4 % 2 (0) = 1
+//                        4 / 2 (2) - 5 % 2 (1) = 1
+//                        5 / 2 (2) - 6 % 2 (0) = 2
+                        box1_y = lineY / (columns - 1) - (lineY + 1) % 2
+                        box2_y = lineY / (columns - 1)
+                        box2_x = lineX
+                        // box to right of it is lineX
+                    }
+                    // if y coord is odd (vertical)
+
+
+                }
+
+                //return boxes[x, y] to boxes[a, b]
+                return Pair(Box1, Box2)
                 TODO("You need to look up the correct boxes for this to work")
                 // box - 1, box + 1? but how do we access box coords?
             }

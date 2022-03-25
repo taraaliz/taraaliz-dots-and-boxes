@@ -39,7 +39,7 @@ class GameView: View {
     color = backCol
   }
   private var linePaint: Paint = Paint().apply {
-    style = Paint.Style.STROKE
+    style = Paint.Style.FILL_AND_STROKE
     color = lineCol
   }
   private val computerPlayer: EasyAI = EasyAI()
@@ -53,26 +53,42 @@ class GameView: View {
     // draw the View
     // Background
     // Measure the size of the canvas, we could take into account padding here
-    val canvasWidth = width.toFloat() + 10f
-    val canvasHeight = height.toFloat() + 10f
-    var xSep: Float = canvasWidth / game.columns
-    var ySep: Float = canvasHeight / game.rows
+    val canvasWidth = width.toFloat()
+    val canvasHeight = height.toFloat()
+
+    // Padding
+    val minX = paddingLeft
+    val minY = paddingTop
+    val maxX = width - paddingLeft - paddingRight
+    val maxY = height - paddingTop - paddingBottom
+
+    var xSep: Float = maxX.toFloat() / game.columns
+    var ySep: Float = maxY.toFloat() / game.rows
 
     // Draw rectangle with drawRect(topleftX, topLeftY, bottomRightX, bottomRightY, Paint)
     // Use Ctrl-P to see the parameters for a function
     //canvas.drawRect(0f, 0f, canvasWidth, canvasHeight, backPaint)
-
-    for (x in 0..(game.rows )) {
+    //val rows = game.rows + 1
+    //val columns = game.columns + 1
+    // draw lines first
+    for (x in 0..(game.rows)) {
       for (y in 0..(game.columns)) {
-        canvas.drawPoint(x * xSep, y * ySep, dotPaint)
-        // starts where dot starts, ends on next row (vertical)
-        if (y % 2 != 0) {
-          canvas.drawLine(x * xSep, y * ySep, x * xSep, x * ySep, linePaint)
-        }
+        //if (y % 2 != 0) {
+          canvas.drawLine(x * xSep + minX, y * ySep + minY, x * xSep,
+            x * ySep, linePaint)
+        //}
         // horizontal lines - start where dot starts, end on next column
-        else {
-          canvas.drawLine(x * xSep, y * ySep, y * xSep, y * ySep, linePaint)
-        }
+        //else {
+          canvas.drawLine(x * xSep + minX, y * ySep + minY, y * xSep - right,
+            y * ySep - bottom, linePaint)
+        //}
+      }
+    }
+  // draw dots on top of lines
+    for (x in 1..(game.rows)) {
+      for (y in 1..(game.columns)) {
+        // starts where dot starts, ends on next row (vertical)
+        canvas.drawPoint(x * xSep + left, y * ySep + top, dotPaint)
       }
     }
   }

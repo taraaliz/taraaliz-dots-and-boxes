@@ -61,27 +61,21 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 // lines with x coord 3 and even y coord are invalid
                 // do we need to check for even y here if it is checked on creation in
                 // SpareMatrix?
-                if (lineX == columns) {
-                    // if y coord is odd - vertical
-                    if (lineY % 2 != 0) {
+                if (lineX == columns && lineY % 2 != 0) {
+                    // if y coord is odd - vertical and on border
                         box1_x = lineX - 1
                         box1_y = (lineY + 1) / (columns - 1)
-                        Box1 = StudentBox(box1_x, box1_y)
-                        // how to get box coords? is this creating a new box or accessing an existing
-                        // one?
-                    }
                 }
                 // handling lines with x coord 0 - lines on the left edge
                 else if (lineX == 0) {
                     box1_x = lineX
                     box1_y = lineY / 2
-                    Box1 = StudentBox(box1_x, box1_y)
                     // if y coord is odd (vertical), or on the borders, no second box
                     // for the lines with even y coords (horizontal) not on the borders
                     if (lineY % 2 == 0 || lineY != columns * 2 || lineY != 0) {
                         box2_x = lineX
                         box2_y = (lineY - 1) / 2
-                        Box2 = StudentBox(box2_x, box2_y)
+                        Box2 = boxes[box2_x, box2_y]
                     }
                 }
                 // handling all other lines
@@ -107,16 +101,17 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                         box2_y = lineY / (columns - 1)
                         box2_x = lineX
                         // box to right of it is lineX
+                        Box2 = boxes[box2_x, box2_y]
                     }
-                    // if y coord is odd (vertical)
-
-
                 }
-
+                // all cases have at least one box
+                // this might go wrong if the validator function for lines isn't right
+                Box1 = boxes[box1_x, box1_y]
+                // how to get box coords? is this creating a new box or accessing an existing
+                // one?
                 //return boxes[x, y] to boxes[a, b]
                 return Pair(Box1, Box2)
                 TODO("You need to look up the correct boxes for this to work")
-                // box - 1, box + 1? but how do we access box coords?
             }
 
         override fun drawLine() {

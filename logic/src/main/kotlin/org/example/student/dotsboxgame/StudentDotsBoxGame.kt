@@ -107,8 +107,6 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 // all cases have at least one box
                 // this might go wrong if the validator function for lines isn't right
                 Box1 = boxes[box1_x, box1_y]
-                // how to get box coords? is this creating a new box or accessing an existing
-                // one?
                 //return boxes[x, y] to boxes[a, b]
                 return Pair(Box1, Box2)
                 TODO("You need to look up the correct boxes for this to work")

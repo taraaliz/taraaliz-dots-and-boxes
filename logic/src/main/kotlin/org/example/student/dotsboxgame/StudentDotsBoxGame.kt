@@ -1,14 +1,11 @@
 package org.example.student.dotsboxgame
 
 import uk.ac.bournemouth.ap.dotsandboxeslib.*
-import uk.ac.bournemouth.ap.lib.matrix.ArrayMutableSparseMatrix
 import uk.ac.bournemouth.ap.lib.matrix.Matrix
 import uk.ac.bournemouth.ap.lib.matrix.MutableSparseMatrix
-import uk.ac.bournemouth.ap.lib.matrix.SparseMatrix
-import kotlin.random.Random
 
 class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>): AbstractDotsAndBoxesGame() {
-    override val players: List<Player> = players
+    override val players: List<Player> = mutableListOf<Player>().apply { addAll(players) }
 
     override val currentPlayer: Player = players[0]
 
@@ -48,67 +45,55 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 // most are x-1, y-1 and x-1, y (horizontal)
                 // vertical is x,y, and x-1, y
                 // if odd y
-                var box1_x: Int
-                var box1_y: Int
-                var box2_x: Int?
-                var box2_y: Int?
-                var Box1: StudentBox?
-                var Box2: StudentBox? = null
+                var behindX: Int
+                var behindY: Int
+                var aheadX: Int?
+                var aheadY: Int?
+                // the box left or above the line - not all lines have one
+                var behindBox: StudentBox? = null
+                // the box right or below the line
+                var aheadBox: StudentBox? = null
 
-
-
-                // handling lines with x coord 3 in a 4x4 game - lines on the right edge
-                // lines with x coord 3 and even y coord are invalid
-                // do we need to check for even y here if it is checked on creation in
-                // SpareMatrix?
-                if (lineX == columns && lineY % 2 != 0) {
-                    // if y coord is odd - vertical and on border
-                        box1_x = lineX - 1
-                        box1_y = (lineY + 1) / (columns - 1)
-                }
-                // handling lines with x coord 0 - lines on the left edge
-                else if (lineX == 0) {
-                    box1_x = lineX
-                    box1_y = lineY / 2
-                    // if y coord is odd (vertical), or on the borders, no second box
-                    // for the lines with even y coords (horizontal) not on the borders
-                    if (lineY % 2 == 0 || lineY != columns * 2 || lineY != 0) {
-                        box2_x = lineX
-                        box2_y = (lineY - 1) / 2
-                        Box2 = boxes[box2_x, box2_y]
+                when {
+                    lineY == 0 -> {
+                        aheadBox = boxes[lineX, lineY]
                     }
-                }
-                // handling all other lines
-                else {
-                    // horizontal lines only - this is reassigned for vertical lines
-                    box1_x = lineX
-                    // if on the borders
-                    if (lineY == 0 || lineY == columns*2) {
-                        box1_y = lineY / columns
-                    }
-                    else {
-                        // if line is vertical box1_x is lineX - 1 instead of lineX
-                        if (lineY % 2 != 0) {
-                            box1_x = lineX - 1
-                            // box to left of it is lineX - 1
+                    lineY % 2 != 0 -> {
+                        if (lineX == 0) {
+                            aheadBox = boxes[lineX, lineY/2]
+                        } else {
+                            if (lineX == columns) {
+                                behindX = columns - 1
+                                behindY = lineY/2
+                                behindBox = boxes[behindX, behindY]
+                            } else {
+                                behindX = lineX - 1
+                                behindY = lineY/2
+                                aheadX = lineX
+                                aheadY = lineX/2
+                                aheadBox = boxes[aheadX, aheadY]
+                                behindBox = boxes[behindX, behindY]
+                            }
                         }
-//                        1 / 2 (0) - 2 % 2 (0) = 0
-//                        2 / 2 (1) - 3 % 2 (1) = 0
-//                        3 / 2 (1) - 4 % 2 (0) = 1
-//                        4 / 2 (2) - 5 % 2 (1) = 1
-//                        5 / 2 (2) - 6 % 2 (0) = 2
-                        box1_y = lineY / (columns - 1) - (lineY + 1) % 2
-                        box2_y = lineY / (columns - 1)
-                        box2_x = lineX
-                        // box to right of it is lineX
-                        Box2 = boxes[box2_x, box2_y]
+
+                    }
+                    else -> {
+                        if (lineY == rows * 2) {
+                            behindX = lineX
+                            behindY = (lineY-1)/2
+                        } else {
+                            // y is even
+                            behindX = lineX
+                            behindY = (lineY / 2) - ((lineY + 1) % 2)
+                            aheadX = lineX
+                            aheadY = lineY/2
+                            aheadBox = boxes[aheadX, aheadY]
+                        }
+                        behindBox = boxes[behindX, behindY]
                     }
                 }
-                // all cases have at least one box
-                // this might go wrong if the validator function for lines isn't right
-                Box1 = boxes[box1_x, box1_y]
-                //return boxes[x, y] to boxes[a, b]
-                return Pair(Box1, Box2)
+
+                return Pair(behindBox, aheadBox)
                 TODO("You need to look up the correct boxes for this to work")
             }
 

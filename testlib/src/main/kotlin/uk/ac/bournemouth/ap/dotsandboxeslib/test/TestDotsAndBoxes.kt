@@ -364,7 +364,7 @@ abstract class TestDotsAndBoxes {
                         }
                         assertEquals(
                             line.coordinates, sameLines.single().coordinates,
-                            "There should be exactly 1 line in common between neigbors box $adjBox at " +
+                            "There should be exactly 1 line in common between neighbors box $adjBox at " +
                                     "${adjBox.coordinates} and box $other at ${other.coordinates} "
                                     )
                     } else {

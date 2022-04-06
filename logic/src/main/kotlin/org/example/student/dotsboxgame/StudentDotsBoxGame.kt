@@ -16,7 +16,8 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
     // also that on the last column, no invalid lines exist ( where x = columns and y is odd)
     override val lines: MutableSparseMatrix<StudentLine> = MutableSparseMatrix(columns+1,
         rows*2+1, { x, y ->
-            x < columns && (if (x == columns) {(y % 2) != 0} else y < rows)}, ::StudentLine)
+            (x < columns || (x == columns && y % 2 !=0)) && y <= rows*2}, ::StudentLine)
+    // x is less than columns OR x is equal to columns AND y is odd, AND y is less than rows * 2
 
     override val isFinished: Boolean = false
     // no getter provided as kotlin provides them by default, unless we need to do anything fancy
@@ -70,7 +71,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                                 behindX = lineX - 1
                                 behindY = lineY/2
                                 aheadX = lineX
-                                aheadY = lineX/2
+                                aheadY = lineY/2
                                 aheadBox = boxes[aheadX, aheadY]
                                 behindBox = boxes[behindX, behindY]
                             }

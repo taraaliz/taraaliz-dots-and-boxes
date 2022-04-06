@@ -22,6 +22,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
     override val isFinished: Boolean = false
     // no getter provided as kotlin provides them by default, unless we need to do anything fancy
 
+    //TODO("figure out where to initialise this - when a new players turn starts?")
     var turnCount: Int = 1
 
     override fun playComputerTurns() {

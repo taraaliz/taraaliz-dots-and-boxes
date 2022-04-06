@@ -7,7 +7,7 @@ import uk.ac.bournemouth.ap.lib.matrix.MutableSparseMatrix
 class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>): AbstractDotsAndBoxesGame() {
     override val players: List<Player> = mutableListOf<Player>().apply { addAll(players) }
 
-    override val currentPlayer: Player = players[0]
+    override var currentPlayer: Player = players[0]
 
     // NOTE: you may want to be more specific in the box type if you use that type in your class
     override val boxes: Matrix<StudentBox> = Matrix(columns, rows) { x, y -> StudentBox(x, y)}
@@ -103,6 +103,19 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
             }
             else {
                 isDrawn = true
+                for (box in adjacentBoxes.toList()) {
+                    if (box != null) {
+                        var linesDrawn: Int = 0
+                        for (line in box.boundingLines) {
+                            if (line.isDrawn) {
+                                linesDrawn += 1
+                            }
+                            if (linesDrawn == 4) {
+                                box.owningPlayer = currentPlayer
+                            }
+                        }
+                    }
+                }
             }
             if (isFinished)  {
                 val results = mutableListOf<Pair<Player,Int>>()
@@ -113,6 +126,11 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 }
                 fireGameOver(results)
             } else {
+                var nextPlayer = players.indexOf(currentPlayer) + 1
+                if (nextPlayer >= players.size) {
+                    nextPlayer = 0
+                }
+                currentPlayer = players[nextPlayer]
                 fireGameChange()
             }
 
@@ -123,7 +141,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
 
     inner class StudentBox(boxX: Int, boxY: Int) : AbstractBox(boxX, boxY) {
 
-        override val owningPlayer: Player? = null
+        override var owningPlayer: Player? = null
         // no getter or setter made, default value null
 
         /**

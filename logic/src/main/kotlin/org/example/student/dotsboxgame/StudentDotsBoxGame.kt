@@ -130,7 +130,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
          * This must be lazy or a getter, otherwise there is a chicken/egg problem with the boxes
          */
         override val boundingLines: Iterable<DotsAndBoxesGame.Line>
-            get() = listOf(StudentLine(boxX, 2 * boxY), StudentLine(boxX, 2 * boxY + 1),
-                StudentLine(boxX, 2* boxY + 2), StudentLine(boxX + 1, 2 * boxY + 1))
+            get() = listOf(lines[boxX, 2 * boxY], lines[boxX, 2 * boxY + 1],
+                lines[boxX, 2* boxY + 2], lines[boxX + 1, 2 * boxY + 1])
     }
 }

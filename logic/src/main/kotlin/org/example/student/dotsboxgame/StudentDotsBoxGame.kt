@@ -22,6 +22,8 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
     override val isFinished: Boolean = false
     // no getter provided as kotlin provides them by default, unless we need to do anything fancy
 
+    var turnCount: Int = 1
+
     override fun playComputerTurns() {
         var current = currentPlayer
         while (current is ComputerPlayer && ! isFinished) {
@@ -29,6 +31,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
             current = currentPlayer
         }
     }
+    inner class InvalidMoveException(message: String) : Exception(message)
 
     /**
      * This is an inner class as it needs to refer to the game to be able to look up the correct
@@ -98,8 +101,12 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
             }
 
         override fun drawLine() {
+            var nextPlayerIndex = players.indexOf(currentPlayer) + 1
+            if (nextPlayerIndex >= players.size) {
+                nextPlayerIndex = 0
+            }
             if (isDrawn) {
-                print("Exception: line is already drawn")
+                throw InvalidMoveException("Line is already drawn")
             }
             else {
                 isDrawn = true
@@ -110,12 +117,19 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                             if (line.isDrawn) {
                                 linesDrawn += 1
                             }
-                            if (linesDrawn == 4) {
-                                box.owningPlayer = currentPlayer
+                        }
+                        if (linesDrawn == 4) {
+                            box.owningPlayer = currentPlayer
+                            turnCount += 1
+                            if (turnCount >= 2) {
+                                nextPlayerIndex = players.indexOf(currentPlayer)
                             }
                         }
                     }
                 }
+            }
+            if (nextPlayerIndex != players.indexOf(currentPlayer)) {
+                turnCount = 1
             }
             if (isFinished)  {
                 val results = mutableListOf<Pair<Player,Int>>()
@@ -126,11 +140,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 }
                 fireGameOver(results)
             } else {
-                var nextPlayer = players.indexOf(currentPlayer) + 1
-                if (nextPlayer >= players.size) {
-                    nextPlayer = 0
-                }
-                currentPlayer = players[nextPlayer]
+                currentPlayer = players[nextPlayerIndex]
                 fireGameChange()
             }
 

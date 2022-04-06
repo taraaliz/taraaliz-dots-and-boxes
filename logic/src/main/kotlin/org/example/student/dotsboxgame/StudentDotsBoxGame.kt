@@ -95,11 +95,27 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 }
 
                 return Pair(behindBox, aheadBox)
-                TODO("You need to look up the correct boxes for this to work")
             }
 
         override fun drawLine() {
-            TODO("Implement the logic for a player drawing a line. Don't forget to inform the listeners (fireGameChange, fireGameOver)")
+            if (isDrawn) {
+                print("Exception: line is already drawn")
+            }
+            else {
+                isDrawn = true
+            }
+            if (isFinished)  {
+                val results = mutableListOf<Pair<Player,Int>>()
+                val scores = getScores()
+                for (player in players) {
+                    val indexOfPlayer = players.indexOf(player)
+                    results.add(Pair(player, scores[indexOfPlayer]))
+                }
+                fireGameOver(results)
+            } else {
+                fireGameChange()
+            }
+
             // NOTE read the documentation in the interface, you must also update the current player.
             // does any logic go here? yes, all logic goes here, this is where isDrawn changes
         }
@@ -116,11 +132,5 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
         override val boundingLines: Iterable<DotsAndBoxesGame.Line>
             get() = listOf(StudentLine(boxX, 2 * boxY), StudentLine(boxX, 2 * boxY + 1),
                 StudentLine(boxX, 2* boxY + 2), StudentLine(boxX + 1, 2 * boxY + 1))
-                //TODO("Look up the correct lines from the game outer class")
-        // cant do 'this' keyword, so how do we refer to game outer class?
-            // get box coords (boxX and boxY), calculate what the nearby line coords would be
-        // are these drawn lines or not?
-        // (boxX, boxY), (boxX + 1, boxY), (boxX, boxY + 1), (boxX + 1, boxY + 1)
-        // wrong
     }
 }

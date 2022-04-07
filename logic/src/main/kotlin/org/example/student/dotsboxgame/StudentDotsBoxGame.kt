@@ -19,11 +19,8 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
             (x < columns || (x == columns && y % 2 !=0)) && y <= rows*2}, ::StudentLine)
     // x is less than columns OR x is equal to columns AND y is odd, AND y is less than rows * 2
 
-    override val isFinished: Boolean = false
+    override var isFinished: Boolean = false
     // no getter provided as kotlin provides them by default, unless we need to do anything fancy
-
-    //TODO("figure out where to initialise this - when a new players turn starts?")
-    var turnCount: Int = 1
 
     override fun playComputerTurns() {
         var current = currentPlayer
@@ -43,6 +40,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
         // even y coords are horizontal
         // odd y coords are vertical
         override var isDrawn: Boolean = false
+        var turnCount: Int = 1
 
         override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
             get() {
@@ -122,11 +120,15 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                         if (linesDrawn == 4) {
                             box.owningPlayer = currentPlayer
                             turnCount += 1
-                            if (turnCount >= 2) {
+                            if (turnCount == 2 || turnCount == 3) {
                                 nextPlayerIndex = players.indexOf(currentPlayer)
                             }
                         }
                     }
+                }
+                var totalBoxesDrawn = getScores().sum()
+                if (totalBoxesDrawn == boxes.count()) {
+                    isFinished = true
                 }
             }
             if (nextPlayerIndex != players.indexOf(currentPlayer)) {
@@ -140,6 +142,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                     results.add(Pair(player, scores[indexOfPlayer]))
                 }
                 fireGameOver(results)
+                fireGameChange()
             } else {
                 currentPlayer = players[nextPlayerIndex]
                 fireGameChange()

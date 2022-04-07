@@ -111,45 +111,38 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 isDrawn = true
                 for (box in adjacentBoxes.toList()) {
                     if (box != null) {
-                        var linesDrawn: Int = 0
+                        var linesDrawn = 0
                         for (line in box.boundingLines) {
                             if (line.isDrawn) {
                                 linesDrawn += 1
                             }
                         }
-                        if (linesDrawn == 4) {
+                        if (linesDrawn >= 4) {
                             box.owningPlayer = currentPlayer
-                            turnCount += 1
-                            if (turnCount == 2 || turnCount == 3) {
-                                nextPlayerIndex = players.indexOf(currentPlayer)
-                            }
+                            nextPlayerIndex = players.indexOf(currentPlayer)
+                            currentPlayer = players[nextPlayerIndex]
                         }
                     }
                 }
-                var totalBoxesDrawn = getScores().sum()
+                val totalBoxesDrawn = getScores().sum()
                 if (totalBoxesDrawn == boxes.count()) {
                     isFinished = true
                 }
-            }
-            if (nextPlayerIndex != players.indexOf(currentPlayer)) {
-                turnCount = 1
-            }
-            if (isFinished)  {
-                val results = mutableListOf<Pair<Player,Int>>()
-                val scores = getScores()
-                for (player in players) {
-                    val indexOfPlayer = players.indexOf(player)
-                    results.add(Pair(player, scores[indexOfPlayer]))
-                }
-                fireGameOver(results)
-                fireGameChange()
-            } else {
-                currentPlayer = players[nextPlayerIndex]
-                fireGameChange()
-            }
+                if (isFinished)  {
+                    val results = mutableListOf<Pair<Player,Int>>()
+                    val scores = getScores()
+                    for (player in players) {
+                        val indexOfPlayer = players.indexOf(player)
+                        results.add(Pair(player, scores[indexOfPlayer]))
+                    }
+                    fireGameChange()
+                    fireGameOver(results)
 
-            // NOTE read the documentation in the interface, you must also update the current player.
-            // does any logic go here? yes, all logic goes here, this is where isDrawn changes
+                }
+            }
+            currentPlayer = players[nextPlayerIndex]
+            playComputerTurns()
+            fireGameChange()
         }
     }
 

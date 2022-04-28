@@ -44,7 +44,7 @@ class GameView: View {
     }
     private var borderPaint: Paint = Paint().apply {
         style = Paint.Style.STROKE
-        color = lineCol
+        color = wordCol
         strokeWidth = 10f
     }
     private var linePaint: Paint = Paint().apply {
@@ -54,8 +54,8 @@ class GameView: View {
     }
     private var wordsPaint: Paint = Paint().apply {
         color = wordCol
-        textAlign = Paint.Align.CENTER
-        textSize = 100f
+        textAlign = Paint.Align.LEFT
+        textSize = 50f
         typeface = Typeface.SANS_SERIF
     }
 
@@ -63,23 +63,25 @@ class GameView: View {
     val humanPlayer: NamedHuman = NamedHuman("Tara")
     val playersList: List<Player> = listOf(computerPlayer, humanPlayer)
     val game = StudentDotsBoxGame(columns = 3, rows = 3, players = playersList)
-    val scores = game.getScores()
-    val textPlayer1: String = "Player 1" //+ game.players[0] + scores[0]
-    val textPlayer2: String = "Player 2"/// + game.players[1] + scores[1]
+
+
 
 
     override fun onDraw(canvas: Canvas) {
-
+        val scores = game.getScores()
+        var textPlayer1: String = "Player 1: " + scores[0]
+        var textPlayer2: String = "Player 2: " + scores[1]
         // draw the View
         // Background
         // Measure the size of the canvas, we could take into account padding here
         val canvasWidth = width.toFloat()
         val canvasHeight = height.toFloat()
-        val textViewx = canvasWidth / 2f
-        // 16dp from top of view (assuming top is 0)
-        val textView1y = canvasHeight / 2f
-        // 16dp from bottom of view (assuming bottom is 0)
-        //val textView2y = canvasHeight / 4f
+        val textViewX = canvasWidth / 32f
+        // placed in the initial 32nd of the canvas horizontally
+        val textView1Y = canvasHeight / 16f
+        // placed in the initial 16th of the canvas vertically
+        val textView2Y = 15 * (canvasHeight / 16f)
+        // placed in the final 16th of the canvas vertically
         // Padding
         val minX = paddingLeft
         val minY = paddingTop
@@ -88,7 +90,6 @@ class GameView: View {
 
         val xSep: Float = maxX.toFloat() / game.columns
         val ySep: Float = maxY.toFloat() / game.rows
-
         // Draw text
 
 //        val textViewPlayer1 = findViewById<TextView?>(R.id.textViewPlayer1)
@@ -96,17 +97,17 @@ class GameView: View {
 //        val textViewPlayer2 = findViewById<TextView?>(R.id.textViewPlayer2)
 //        textViewPlayer2?.text = textPlayer2
 
-        canvas.drawText("Text", 100f, 100f, wordsPaint)
-        //canvas.drawText(textPlayer2, textViewx, textView2y, wordsPaint)
+        canvas.drawText(textPlayer1, textViewX, textView1Y, wordsPaint)
+        canvas.drawText(textPlayer2, textViewX, textView2Y, wordsPaint)
         // Draw rectangle with drawRect(topleftX, topLeftY, bottomRightX, bottomRightY, Paint)
         // Use Ctrl-P to see the parameters for a function
-        canvas.drawRect(125f, 125f, canvasWidth, canvasHeight, backPaint)
-        canvas.drawRect(125f, 125f, canvasWidth, canvasHeight, borderPaint)
+        canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, backPaint)
+        canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, borderPaint)
         //val rows = game.rows + 1
         //val columns = game.columns + 1
         // draw lines first
-//        for (x in 0..(game.rows)) {
-//            for (y in 0..(game.columns)) {
+        for (x in 0..(game.rows)) {
+            for (y in 0..(game.columns)) {
 //                //if (y % 2 != 0) {
 //                canvas.drawLine(x * xSep + minX, y * ySep + minY, x * xSep,
 //                    x * ySep, linePaint)
@@ -116,8 +117,8 @@ class GameView: View {
 //                canvas.drawLine(x * xSep + minX, y * ySep + minY, y * xSep - right,
 //                    y * ySep - bottom, linePaint)
 //                //}
-//            }
-//        }
+            }
+        }
 //        // draw dots on top of lines
 //        for (x in 1..(game.rows)) {
 //            for (y in 1..(game.columns)) {

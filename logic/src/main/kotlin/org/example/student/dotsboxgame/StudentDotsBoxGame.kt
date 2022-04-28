@@ -48,56 +48,45 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 // most are x-1, y-1 and x-1, y (horizontal)
                 // vertical is x,y, and x-1, y
                 // if odd y
-                var behindX: Int
-                var behindY: Int
-                var aheadX: Int?
-                var aheadY: Int?
+                val behindX: Int
+                val behindY: Int
+                val aheadX: Int?
+                val aheadY: Int?
                 // the box left or above the line - not all lines have one
-                var behindBox: StudentBox? = null
+                val behindBox: StudentBox?
                 // the box right or below the line
-                var aheadBox: StudentBox? = null
+                val aheadBox: StudentBox?
 
                 when {
-                    // Edge
-                    lineY == 0 -> {
-                        aheadBox = boxes[lineX, lineY]
-                    }
-                    // Horizontal
+                    // Line is vertical
                     lineY % 2 != 0 -> {
-                        // Edge
-                        if (lineX == 0) {
-                            aheadBox = boxes[lineX, lineY/2]
-                        } else {
-                            if (lineX == columns) {
-                                behindX = columns - 1
-                                behindY = lineY/2
-                                behindBox = boxes[behindX, behindY]
-                            } else {
-                                behindX = lineX - 1
-                                behindY = lineY/2
-                                aheadX = lineX
-                                aheadY = lineY/2
-                                aheadBox = boxes[aheadX, aheadY]
-                                behindBox = boxes[behindX, behindY]
-                            }
-                        }
+                        behindX = lineX - 1
+                        behindY = lineY/2
+                        // we know lineY is odd so this is equivalent to (lineY - 1)/2
+                        // result will be rounded down to nearest integer
+                        aheadX = lineX
+                        aheadY = lineY/2
 
                     }
-                    // Vertical
+                    // Line is horizontal
                     else -> {
-                        if (lineY == rows * 2) {
-                            behindX = lineX
-                            behindY = (lineY-1)/2
-                        } else {
-                            // y is even
-                            behindX = lineX
-                            behindY = (lineY / 2) - ((lineY + 1) % 2)
-                            aheadX = lineX
-                            aheadY = lineY/2
-                            aheadBox = boxes[aheadX, aheadY]
-                        }
-                        behindBox = boxes[behindX, behindY]
+                        behindX = lineX
+                        behindY = (lineY / 2) - 1
+                        // 1 is equivalent to (lineY + 1) % 2
+                        // since lineY is even, this will always evaluate to 1
+                        aheadX = lineX
+                        aheadY = lineY/2
                     }
+                }
+                behindBox = if (boxes.isValid(behindX, behindY)) {
+                    boxes[behindX, behindY]
+                } else {
+                    null
+                }
+                aheadBox = if (boxes.isValid(aheadX, aheadY)) {
+                    boxes[aheadX, aheadY]
+                } else {
+                    null
                 }
 
                 return Pair(behindBox, aheadBox)

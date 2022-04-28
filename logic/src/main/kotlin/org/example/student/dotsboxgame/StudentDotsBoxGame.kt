@@ -58,10 +58,13 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 var aheadBox: StudentBox? = null
 
                 when {
+                    // Edge
                     lineY == 0 -> {
                         aheadBox = boxes[lineX, lineY]
                     }
+                    // Horizontal
                     lineY % 2 != 0 -> {
+                        // Edge
                         if (lineX == 0) {
                             aheadBox = boxes[lineX, lineY/2]
                         } else {
@@ -80,6 +83,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                         }
 
                     }
+                    // Vertical
                     else -> {
                         if (lineY == rows * 2) {
                             behindX = lineX
@@ -121,9 +125,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                             box.owningPlayer = currentPlayer
                             nextPlayerIndex = players.indexOf(currentPlayer)
                             currentPlayer = players[nextPlayerIndex]
-                        }
-                    }
-                }
+                        } } }
                 val totalBoxesDrawn = getScores().sum()
                 if (totalBoxesDrawn == boxes.count()) {
                     isFinished = true
@@ -137,7 +139,6 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                     }
                     fireGameChange()
                     fireGameOver(results)
-
                 }
             }
             currentPlayer = players[nextPlayerIndex]

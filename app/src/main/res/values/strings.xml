@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Dots and boxes</string>
+    <string name="Player1">players[0]: scores[0]</string>
 </resources>

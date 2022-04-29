@@ -26,12 +26,14 @@ class GameView: View {
 
     private val backCol: Int = Color.rgb(250,250,200)
     private val lineCol: Int = Color.GRAY
+    private val drawnLineCol: Int = Color.RED
     private val wordCol: Int = Color.BLACK
+    private var dotSize: Float = 30f
 
     // Paint variables
     private var dotPaint: Paint = Paint().apply {
         // Controls the size of the dot
-        strokeWidth = 20f
+        strokeWidth = dotSize
         strokeCap = Paint.Cap.ROUND
 
         // Set the paint color
@@ -50,7 +52,12 @@ class GameView: View {
     private var linePaint: Paint = Paint().apply {
         style = Paint.Style.STROKE
         color = lineCol
-        strokeWidth = 10f
+        strokeWidth = 30f
+    }
+    private var drawnLinePaint: Paint = Paint().apply {
+        style = Paint.Style.STROKE
+        color = drawnLineCol
+        strokeWidth = 30f
     }
     private var wordsPaint: Paint = Paint().apply {
         color = wordCol
@@ -58,13 +65,30 @@ class GameView: View {
         textSize = 50f
         typeface = Typeface.SANS_SERIF
     }
+    // Padding
+    var dotSpacingY = 0f
+    var dotSpacingX = 0f
+    val leftPadding = 1
+
+    private var leftMargin = 300
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        // things that need to be recalculated if size changes
+        dotSpacingY = (height - leftMargin) / (game.rows + 1).toFloat()
+        dotSpacingX = (width - leftMargin) / (game.columns + 1).toFloat()
+        dotSize = width / 64f
+    }
 
     val computerPlayer: EasyAI = EasyAI()
-    val humanPlayer: NamedHuman = NamedHuman("Tara")
-    val playersList: List<Player> = listOf(computerPlayer, humanPlayer)
-    val game = StudentDotsBoxGame(columns = 3, rows = 3, players = playersList)
+    val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
+    var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
+        set(value) {
+            field = value
+            onSizeChanged(width, height, width, height)
+            invalidate()
 
-
+        }
 
 
     override fun onDraw(canvas: Canvas) {
@@ -72,10 +96,12 @@ class GameView: View {
         var textPlayer1: String = "Player 1: " + scores[0]
         var textPlayer2: String = "Player 2: " + scores[1]
         // draw the View
-        // Background
         // Measure the size of the canvas, we could take into account padding here
         val canvasWidth = width.toFloat()
         val canvasHeight = height.toFloat()
+        val dotSpacingX = canvasWidth / (game.columns + 1)
+        val dotSpacingY = (canvasHeight) / (game.rows + 1)
+        // Text Location
         val textViewX = canvasWidth / 32f
         // placed in the initial 32nd of the canvas horizontally
         val textView1Y = canvasHeight / 16f
@@ -83,19 +109,8 @@ class GameView: View {
         val textView2Y = 15 * (canvasHeight / 16f)
         // placed in the final 16th of the canvas vertically
         // Padding
-        val minX = paddingLeft
-        val minY = paddingTop
-        val maxX = width - paddingLeft - paddingRight
-        val maxY = height - paddingTop - paddingBottom
 
-        val xSep: Float = maxX.toFloat() / game.columns
-        val ySep: Float = maxY.toFloat() / game.rows
         // Draw text
-
-//        val textViewPlayer1 = findViewById<TextView?>(R.id.textViewPlayer1)
-//        textViewPlayer1?.text = textPlayer1
-//        val textViewPlayer2 = findViewById<TextView?>(R.id.textViewPlayer2)
-//        textViewPlayer2?.text = textPlayer2
 
         canvas.drawText(textPlayer1, textViewX, textView1Y, wordsPaint)
         canvas.drawText(textPlayer2, textViewX, textView2Y, wordsPaint)
@@ -103,35 +118,44 @@ class GameView: View {
         // Use Ctrl-P to see the parameters for a function
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, backPaint)
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, borderPaint)
-        //val rows = game.rows + 1
-        //val columns = game.columns + 1
-        // draw lines first
-        for (x in 0..(game.rows)) {
-            for (y in 0..(game.columns)) {
-//                //if (y % 2 != 0) {
-//                canvas.drawLine(x * xSep + minX, y * ySep + minY, x * xSep,
-//                    x * ySep, linePaint)
-//                //}
-//                // horizontal lines - start where dot starts, end on next column
-//                //else {
-//                canvas.drawLine(x * xSep + minX, y * ySep + minY, y * xSep - right,
-//                    y * ySep - bottom, linePaint)
-//                //}
+
+        // horizontal
+        for (x in 1..game.columns) {
+            for (y in 1..game.rows) {
+//                if (game.lines[x,y*2].isDrawn) {
+//                    linePaint = drawnLinePaint
+//                }
+                // y stays same, x goes up by 1
+                val start = x * dotSpacingX
+                val stop = y * dotSpacingY
+                canvas.drawLine(
+                    (start), (stop), (x + 1 * dotSpacingX + 1),
+                    (stop) , linePaint)
             }
         }
-//        // draw dots on top of lines
-//        for (x in 1..(game.rows)) {
-//            for (y in 1..(game.columns)) {
-//                // starts where dot starts, ends on next row (vertical)
-//                canvas.drawPoint(x * xSep + left, y * ySep + top, dotPaint)
-//            }
-//        }
-    }
+        // vertical
+        for (x in 1..game.columns) {
+            for (y in 1..game.rows) {
+//                if (game.lines[x,y*2].isDrawn) {
+//                    linePaint = drawnLinePaint
+//                }
+                val start = x * dotSpacingX
+                val stop = y * dotSpacingY
+                canvas.drawLine( (start), (stop),
+                    (start), (y + 1* dotSpacingY + 1),
+                    linePaint)
+            }
+        }
 
-    // outputs a 5 x 6 grid of square-shaped red dots
-    // no lines yet
-    // left-aligned
-    // new output: 3 x 3 grid, 16 dots, some lines drawn some not, top left aligned
-    // new new output: 3x3 grid, 16 dots, about 6 lines drawn, fills whole screen no padding
+        // draw dots on top of lines
+        for (x in 1..(game.columns)) {
+            for (y in 1..(game.rows)) {
+                val start = x* dotSpacingX
+                val stop = y* dotSpacingY
+                // starts where dot starts, ends on next row (vertical)
+                canvas.drawPoint(start, stop, dotPaint)
+            }
+        }
+    }
 
 }

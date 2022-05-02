@@ -26,7 +26,7 @@ class GameView: View {
 
     private val backCol: Int = Color.rgb(250,250,200)
     private val lineCol: Int = Color.GRAY
-    private val drawnLineCol: Int = Color.RED
+    private val drawnLineCol: Int = Color.BLACK
     private val wordCol: Int = Color.BLACK
     private var dotSize: Float = 30f
 
@@ -65,42 +65,39 @@ class GameView: View {
         textSize = 50f
         typeface = Typeface.SANS_SERIF
     }
-    // Padding
+    // Padding initialisers, these get set in onSizeChanged
     var dotSpacingY = 0f
     var dotSpacingX = 0f
-    val leftPadding = 1
-
-    private var leftMargin = 300
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         // things that need to be recalculated if size changes
-        dotSpacingY = (height - leftMargin) / (game.rows + 1).toFloat()
-        dotSpacingX = (width - leftMargin) / (game.columns + 1).toFloat()
+        dotSpacingY = height / (game.rows + 1).toFloat()
+        dotSpacingX = width / (game.columns + 1).toFloat()
         dotSize = width / 64f
     }
 
     val computerPlayer: EasyAI = EasyAI()
     val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
+    // 4x4 game
     var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
         set(value) {
             field = value
             onSizeChanged(width, height, width, height)
             invalidate()
-
         }
-
 
     override fun onDraw(canvas: Canvas) {
         val scores = game.getScores()
         var textPlayer1: String = "Player 1: " + scores[0]
         var textPlayer2: String = "Player 2: " + scores[1]
-        // draw the View
-        // Measure the size of the canvas, we could take into account padding here
+
+        // Measure the size of the canvas
         val canvasWidth = width.toFloat()
         val canvasHeight = height.toFloat()
+
         val dotSpacingX = canvasWidth / (game.columns + 1)
-        val dotSpacingY = (canvasHeight) / (game.rows + 1)
+        val dotSpacingY = canvasHeight / (game.rows + 1)
         // Text Location
         val textViewX = canvasWidth / 32f
         // placed in the initial 32nd of the canvas horizontally
@@ -108,12 +105,11 @@ class GameView: View {
         // placed in the initial 16th of the canvas vertically
         val textView2Y = 15 * (canvasHeight / 16f)
         // placed in the final 16th of the canvas vertically
-        // Padding
 
         // Draw text
-
         canvas.drawText(textPlayer1, textViewX, textView1Y, wordsPaint)
         canvas.drawText(textPlayer2, textViewX, textView2Y, wordsPaint)
+
         // Draw rectangle with drawRect(topleftX, topLeftY, bottomRightX, bottomRightY, Paint)
         // Use Ctrl-P to see the parameters for a function
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, backPaint)
@@ -129,7 +125,7 @@ class GameView: View {
                 val start = x * dotSpacingX
                 val stop = y * dotSpacingY
                 canvas.drawLine(
-                    (start), (stop), (x + 1 * dotSpacingX + 1),
+                    (start), (stop), (x + 1 * dotSpacingX),
                     (stop) , linePaint)
             }
         }
@@ -142,7 +138,7 @@ class GameView: View {
                 val start = x * dotSpacingX
                 val stop = y * dotSpacingY
                 canvas.drawLine( (start), (stop),
-                    (start), (y + 1* dotSpacingY + 1),
+                    (start), (y + 1* dotSpacingY),
                     linePaint)
             }
         }
@@ -152,7 +148,6 @@ class GameView: View {
             for (y in 1..(game.rows)) {
                 val start = x* dotSpacingX
                 val stop = y* dotSpacingY
-                // starts where dot starts, ends on next row (vertical)
                 canvas.drawPoint(start, stop, dotPaint)
             }
         }

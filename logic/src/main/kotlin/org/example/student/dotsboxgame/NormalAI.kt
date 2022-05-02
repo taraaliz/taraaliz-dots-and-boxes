@@ -2,10 +2,9 @@ package org.example.student.dotsboxgame
 
 import uk.ac.bournemouth.ap.dotsandboxeslib.ComputerPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
-
+/** Complete a box if a box can be completed, otherwise move randomly **/
 class NormalAI: ComputerPlayer() {
     override fun makeMove(game: DotsAndBoxesGame) {
-        /** Complete a box if a box can be completed, otherwise move randomly **/
         val notDrawnLines = game.lines.filterNot { it.isDrawn }
         var lineToDraw = notDrawnLines.random()
         for (box in game.boxes) {

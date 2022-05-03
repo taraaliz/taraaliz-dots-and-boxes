@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -13,6 +14,8 @@ import androidx.core.view.GestureDetectorCompat
 import com.google.android.material.snackbar.Snackbar
 import org.example.student.dotsboxgame.EasyAI
 import org.example.student.dotsboxgame.StudentDotsBoxGame
+import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
+import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame.GameChangeListener
 import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
 import kotlin.math.abs
@@ -27,8 +30,8 @@ class GameView: View {
         defStyleAttr
     )
 
-    private val backCol: Int = Color.rgb(250,250,200)
-    private val lineCol: Int = Color.GRAY
+    private val backCol: Int = Color.GRAY
+    private val lineCol: Int = Color.WHITE
     private val drawnLineCol: Int = Color.BLACK
     private val wordCol: Int = Color.BLACK
     private var dotSize: Float = 30f
@@ -120,7 +123,8 @@ class GameView: View {
                     val lineToDraw = lines[lineTouched] // when 0,0 touched, with 1,0 detected, lineToDraw is line at 0,2 (one under it)
                     if (!lineToDraw.isDrawn) {
                         lineToDraw.drawLine()
-                        invalidate()
+                        //invalidate()
+                        //true
                         val lineX = lineToDraw.lineX
                         val lineY = lineToDraw.lineY
                         Snackbar
@@ -133,8 +137,6 @@ class GameView: View {
                 }
 
             }
-
-
 
         return super.onSingleTapUp(e)
         }
@@ -158,13 +160,22 @@ class GameView: View {
     val computerPlayer: EasyAI = EasyAI()
     val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
     // 4x4 game
-    var game: StudentDotsBoxGame = StudentDotsBoxGame(4, 4, playersList)
+    var game: StudentDotsBoxGame = StudentDotsBoxGame(6, 6, playersList)
         set(value) {
             field = value
             onSizeChanged(width, height, width, height)
             invalidate()
         }
 
+    var listener = object: GameChangeListener {
+        override fun onGameChange(game: DotsAndBoxesGame) {
+            invalidate()
+        }
+    }
+
+    init {
+        game.addOnGameChangeListener(listener)
+    }
     override fun onDraw(canvas: Canvas) {
         val scores = game.getScores()
         var textPlayer1: String = "Player 1: " + scores[0]
@@ -196,37 +207,40 @@ class GameView: View {
 
         }
         // horizontal
-        for (x in 1..game.columns) {
-            for (y in 1..game.rows) {
+        for (x in 1..(game.columns-1))  {
+            for (y in 1..(game.rows)) {
                 if (game.lines.isValid(x-1,(y-1)*2)) {
-                    linePaint = if (game.lines[x-1,(y-1)*2].isDrawn) {
-                        drawnLinePaint
+                    if ( game.lines[x-1,(y-1)*2].isDrawn) {
+                        linePaint = drawnLinePaint
+                        Log.d("horizontal", "Line drawn at" + (x-1) + ", " + (y-1)*2)
                     } else {
-                        notDrawnLinePaint
+                        linePaint = notDrawnLinePaint
                     }
                 }
                 // y stays same, x goes up by 1
-                val start = x * columnWidth
-                val stop = y * rowWidth
+                val startX = x * columnWidth
+                val stopX = (x + 1) * columnWidth
+                val startY = y * rowWidth
                 canvas.drawLine(
-                    (start), (stop), (x + 1 * columnWidth),
-                    (stop) , linePaint)
+                    (startX), (startY), (stopX),
+                    (startY) , linePaint)
             }
         }
         // vertical
-        for (x in 1..game.columns) {
-            for (y in 1..game.rows) {
-                if (game.lines.isValid(x-1,(y-1)*2)) {
-                    linePaint = if (game.lines[x-1,(y-1)*2].isDrawn) {
-                        drawnLinePaint
+        for (x in 1..(game.columns)) {
+            for (y in 1..(game.rows-1)) {
+                if (game.lines.isValid(x-1,(2*y-1))) {
+                    if (game.lines[x-1,(2*y-1)].isDrawn) {
+                        linePaint = drawnLinePaint
+                        Log.d("vertical", "Line drawn at" + (x-1) + ", " + (2*y-1))
                     } else {
-                        notDrawnLinePaint
+                        linePaint = notDrawnLinePaint
                     }
                 }
                 val start = x * columnWidth
                 val stop = y * rowWidth
                 canvas.drawLine( (start), (stop),
-                    (start), (y + 1* rowWidth),
+                    (start), ((y + 1)* rowWidth),
                     linePaint)
             }
         }

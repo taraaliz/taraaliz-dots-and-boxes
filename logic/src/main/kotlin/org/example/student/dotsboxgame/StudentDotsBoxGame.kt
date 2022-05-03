@@ -51,10 +51,7 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                 val behindY: Int
                 val aheadX: Int?
                 val aheadY: Int?
-                // the box left or above the line - not all lines have one
-                val behindBox: StudentBox?
-                // the box right or below the line
-                val aheadBox: StudentBox?
+
 
                 when {
                     // Line is vertical
@@ -77,12 +74,14 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                         aheadY = lineY/2
                     }
                 }
-                behindBox = if (boxes.isValid(behindX, behindY)) {
+                /** the box left or above the line - not all lines have one*/
+                val behindBox: StudentBox? = if (boxes.isValid(behindX, behindY)) {
                     boxes[behindX, behindY]
                 } else {
                     null
                 }
-                aheadBox = if (boxes.isValid(aheadX, aheadY)) {
+                /** the box right or below the line - not all lines have one */
+                val aheadBox: StudentBox? = if (boxes.isValid(aheadX, aheadY)) {
                     boxes[aheadX, aheadY]
                 } else {
                     null

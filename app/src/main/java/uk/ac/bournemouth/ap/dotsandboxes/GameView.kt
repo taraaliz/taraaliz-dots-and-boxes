@@ -183,7 +183,7 @@ class GameView: View {
     }
 
     val computerPlayer: NormalAI = NormalAI()
-    val playersList: List<Player> = listOf(HumanPlayer(), computerPlayer)
+    val playersList: List<Player> = listOf(HumanPlayer(), NormalAI())
     // 4x4 game
     var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
         set(value) {

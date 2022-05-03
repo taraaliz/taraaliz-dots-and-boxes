@@ -154,7 +154,7 @@ class GameView: View {
                         val lineY = lineToDraw.lineY
                         Snackbar
                             .make(this@GameView , "SingleTapUp x= $x y= $y, " +
-                                "closestXCoord = $closestXCoord, closestYCoord = $closestYCoord" +
+                                "boxXCoord = $closestXCoord, boxYCoord = $closestYCoord" +
                                 "lineX = $lineX, lineY = $lineY", Snackbar.LENGTH_LONG).show()
                         return true
 

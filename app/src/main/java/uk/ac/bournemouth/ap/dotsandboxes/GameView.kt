@@ -13,6 +13,8 @@ import android.view.View
 import androidx.core.view.GestureDetectorCompat
 import com.google.android.material.snackbar.Snackbar
 import org.example.student.dotsboxgame.EasyAI
+import org.example.student.dotsboxgame.HardAI
+import org.example.student.dotsboxgame.NormalAI
 import org.example.student.dotsboxgame.StudentDotsBoxGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame.GameChangeListener
@@ -31,7 +33,7 @@ class GameView: View {
     )
 
     private val backCol: Int = Color.GRAY
-    private val lineCol: Int = Color.WHITE
+    private val lineCol: Int = Color.LTGRAY
     private val drawnLineCol: Int = Color.BLACK
     private val wordCol: Int = Color.BLACK
     private var dotSize: Float = 30f
@@ -157,7 +159,7 @@ class GameView: View {
         dotSize = width / 64f
     }
 
-    val computerPlayer: EasyAI = EasyAI()
+    val computerPlayer: NormalAI = NormalAI()
     val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
     // 4x4 game
     var game: StudentDotsBoxGame = StudentDotsBoxGame(6, 6, playersList)
@@ -206,6 +208,43 @@ class GameView: View {
         var linePaint: Paint = Paint().apply{
 
         }
+        var boxPaint: Paint = Paint().apply{
+
+        }
+        val unownedBoxPaint: Paint = Paint().apply{
+            color = Color.WHITE
+            style = Paint.Style.FILL
+        }
+        val player1BoxPaint: Paint = Paint().apply{
+            color = Color.rgb(255, 0, 77)
+        }
+        val player2BoxPaint: Paint = Paint().apply{
+            color = Color.rgb(0, 228, 54)
+        }
+        // draw boxes so they can be coloured in later
+        for (x in 1..(game.columns-1)) {
+            for (y in 1..(game.rows-1)) {
+                val left = x * columnWidth
+                val top = y * rowWidth
+                val right = (x+1) * columnWidth
+                val bottom = (y+1) * rowWidth
+
+                if (game.boxes[x-1, y-1].owningPlayer != null) {
+                    if (game.players.indexOf(game.boxes[x-1, y-1].owningPlayer) == 0) {
+                        boxPaint = player1BoxPaint
+                    }
+                    else if (game.players.indexOf(game.boxes[x-1, y-1].owningPlayer) == 1) {
+                        boxPaint = player2BoxPaint
+                    }
+
+                }
+                else {
+                    boxPaint = unownedBoxPaint
+                }
+                canvas.drawRect(left, top, right, bottom, boxPaint)
+            }
+        }
+
         // horizontal
         for (x in 1..(game.columns-1))  {
             for (y in 1..(game.rows)) {

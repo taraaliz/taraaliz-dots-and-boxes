@@ -123,6 +123,10 @@ class GameView: View {
         return super.onSingleTapUp(e)
         }
     })
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
+    }
     // Padding initialisers, these get set in onSizeChanged
     var rowWidth = 0f
     var columnWidth = 0f

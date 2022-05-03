@@ -6,14 +6,16 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GestureDetectorCompat
+import com.google.android.material.snackbar.Snackbar
 import org.example.student.dotsboxgame.EasyAI
 import org.example.student.dotsboxgame.StudentDotsBoxGame
-import org.example.student.dotsboxgame.NamedHuman
 import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
+import kotlin.math.round
 
 class GameView: View {
     constructor(context: Context?) : super(context)
@@ -65,15 +67,71 @@ class GameView: View {
         textSize = 50f
         typeface = Typeface.SANS_SERIF
     }
+    private val player1Paint: Paint = Paint().apply {
+        style = Paint.Style.FILL
+        color = Color.RED
+    }
+    private val player2Paint: Paint = Paint().apply {
+        style = Paint.Style.FILL
+        color = Color.RED
+    }
+
+
+    private val gestureDetector = GestureDetectorCompat(context, object:
+    GestureDetector.SimpleOnGestureListener() {
+        override fun onDown(e: MotionEvent): Boolean {
+            return true
+        }
+
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
+            val x = e.x * columnWidth
+            val y = e.y * rowWidth
+//            val notRoundedX = (x - columnWidth) / columnWidth // 2.2
+//            val notRoundedY = (y - rowWidth) / rowWidth
+            val closestXCoord = round((x - columnWidth) / columnWidth).toInt() // 2.0
+            val closestYCoord = round((y - rowWidth) / rowWidth).toInt()
+            if (closestYCoord in 0 until game.columns) {
+                if (closestXCoord in 0 until game.rows) {
+                    val closestBox = game.boxes[closestXCoord, closestYCoord]
+//                    val distanceToVerticalLine = closestXCoord - notRoundedX // 0.2
+
+                    // columnWidth = dotSpacingX
+                    val sideLeft = (closestXCoord + 1) * columnWidth // 3 * columnWidth
+                    val sideRight = (closestXCoord + 2) * columnWidth // 4 * columnWidth
+                    val sideTop = (closestYCoord + 1) * rowWidth
+                    val sideBot = (closestYCoord + 2) * rowWidth
+
+                    val distanceRight = sideRight - e.x
+                    val distanceLeft = e.x - sideLeft
+                    val distanceTop = sideTop - e.y
+                    val distanceBot = e.y - sideBot
+                    val distances = listOf(sideTop, sideLeft, sideBot, sideRight)
+                    val smallestDistance = distances.sorted()[0]
+                    val lineTouched = distances.indexOf(smallestDistance)
+                    val lines = closestBox.boundingLines.toList()
+                    val lineToDraw = lines[lineTouched]
+                    if (!lineToDraw.isDrawn) {
+                        lineToDraw.drawLine()
+                    }
+                }
+
+            }
+
+        Snackbar.make(this@GameView , "SingleTapUp x= $x y= $y, closestXCoord = $closestXCoord, closestYCoord = $closestYCoord", Snackbar.LENGTH_LONG).show()
+        return true
+
+        return super.onSingleTapUp(e)
+        }
+    })
     // Padding initialisers, these get set in onSizeChanged
-    var dotSpacingY = 0f
-    var dotSpacingX = 0f
+    var rowWidth = 0f
+    var columnWidth = 0f
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         // things that need to be recalculated if size changes
-        dotSpacingY = height / (game.rows + 1).toFloat()
-        dotSpacingX = width / (game.columns + 1).toFloat()
+        rowWidth = height / (game.rows + 1).toFloat()
+        columnWidth = width / (game.columns + 1).toFloat()
         dotSize = width / 64f
     }
 
@@ -152,5 +210,8 @@ class GameView: View {
             }
         }
     }
-
+/**
+ * (touchCoord - leftMargin) / columns
+ * (touchCoord - topMargin) / rows
+ * */
 }

@@ -183,7 +183,7 @@ class GameView: View {
     }
 
     val computerPlayer: NormalAI = NormalAI()
-    val playersList: List<Player> = listOf(HumanPlayer(), NormalAI())
+    val playersList: List<Player> = listOf(HumanPlayer(), EasyAI())
     // 4x4 game
     var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
         set(value) {
@@ -203,8 +203,8 @@ class GameView: View {
     }
     override fun onDraw(canvas: Canvas) {
         val scores = game.getScores()
-        var textPlayer1: String = "Player 1: " + scores[0]
-        var textPlayer2: String = "Player 2: " + scores[1]
+        val textPlayer1: String = "Player 1: " + scores[0]
+        val textPlayer2: String = "Player 2: " + scores[1]
 
         // Measure the size of the canvas
         val canvasWidth = width.toFloat()

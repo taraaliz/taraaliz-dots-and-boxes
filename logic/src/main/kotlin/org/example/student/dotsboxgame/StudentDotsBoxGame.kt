@@ -40,7 +40,6 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
         // even y coords are horizontal
         // odd y coords are vertical
         override var isDrawn: Boolean = false
-        var turnCount: Int = 1
 
         override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
             get() {

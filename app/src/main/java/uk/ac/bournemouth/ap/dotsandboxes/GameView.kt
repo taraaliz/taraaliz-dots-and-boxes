@@ -21,7 +21,6 @@ import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame.GameChangeListener
 import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
 import kotlin.math.abs
-import kotlin.math.round
 
 class GameView: View {
     constructor(context: Context?) : super(context)
@@ -184,7 +183,7 @@ class GameView: View {
     }
 
     val computerPlayer: NormalAI = NormalAI()
-    val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
+    val playersList: List<Player> = listOf(HumanPlayer(), computerPlayer)
     // 4x4 game
     var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
         set(value) {

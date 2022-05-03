@@ -15,6 +15,7 @@ import org.example.student.dotsboxgame.EasyAI
 import org.example.student.dotsboxgame.StudentDotsBoxGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
+import kotlin.math.abs
 import kotlin.math.round
 
 class GameView: View {
@@ -51,7 +52,7 @@ class GameView: View {
         color = wordCol
         strokeWidth = 10f
     }
-    private var linePaint: Paint = Paint().apply {
+    private var notDrawnLinePaint: Paint = Paint().apply {
         style = Paint.Style.STROKE
         color = lineCol
         strokeWidth = 30f
@@ -84,41 +85,56 @@ class GameView: View {
         }
 
         override fun onSingleTapUp(e: MotionEvent): Boolean {
-            val x = e.x * columnWidth
-            val y = e.y * rowWidth
+            // columnWidth = 180
+            // rowWidth = 264
+            // for touching line at 0,0:
+            val x = e.x // 308.99048
+            val y = e.y // 272.9297
 //            val notRoundedX = (x - columnWidth) / columnWidth // 2.2
 //            val notRoundedY = (y - rowWidth) / rowWidth
-            val closestXCoord = round((x - columnWidth) / columnWidth).toInt() // 2.0
-            val closestYCoord = round((y - rowWidth) / rowWidth).toInt()
+            // (308 - 180) / 180 = 0.7
+            // (272 - 264) / 264 = 0.03
+            /** Whole number X co-ordinate of the closest box*/
+            val closestXCoord = ((x - columnWidth) / columnWidth).toInt() // 1
+            /** Whole number Y co-ordinate of the closest box*/
+            val closestYCoord = ((y - rowWidth) / rowWidth).toInt() // 0
             if (closestYCoord in 0 until game.columns) {
                 if (closestXCoord in 0 until game.rows) {
                     val closestBox = game.boxes[closestXCoord, closestYCoord]
 //                    val distanceToVerticalLine = closestXCoord - notRoundedX // 0.2
 
                     // columnWidth = dotSpacingX
-                    val sideLeft = (closestXCoord + 1) * columnWidth // 3 * columnWidth
-                    val sideRight = (closestXCoord + 2) * columnWidth // 4 * columnWidth
-                    val sideTop = (closestYCoord + 1) * rowWidth
-                    val sideBot = (closestYCoord + 2) * rowWidth
+                    val sideLeft = (closestXCoord + 1) * columnWidth // 2 * columnWidth = 360
+                    val sideRight = (closestXCoord + 2) * columnWidth // 3 * columnWidth = 540
+                    val sideTop = (closestYCoord + 1) * rowWidth // 264
+                    val sideBot = (closestYCoord + 2) * rowWidth // 528
 
-                    val distanceRight = sideRight - e.x
-                    val distanceLeft = e.x - sideLeft
-                    val distanceTop = sideTop - e.y
-                    val distanceBot = e.y - sideBot
-                    val distances = listOf(sideTop, sideLeft, sideBot, sideRight)
-                    val smallestDistance = distances.sorted()[0]
+                    val distanceRight = abs((sideRight - e.x)) // 231.00952
+                    val distanceLeft = abs((e.x - sideLeft))
+                    val distanceTop = abs((sideTop - e.y))
+                    val distanceBot = abs((e.y - sideBot))
+                    val distances = listOf(distanceTop, distanceLeft, distanceBot, distanceRight)
+                    val smallestDistance = minOf(distanceTop, distanceLeft, distanceBot, distanceRight)
                     val lineTouched = distances.indexOf(smallestDistance)
                     val lines = closestBox.boundingLines.toList()
-                    val lineToDraw = lines[lineTouched]
+                    val lineToDraw = lines[lineTouched] // when 0,0 touched, with 1,0 detected, lineToDraw is line at 0,2 (one under it)
                     if (!lineToDraw.isDrawn) {
                         lineToDraw.drawLine()
+                        invalidate()
+                        val lineX = lineToDraw.lineX
+                        val lineY = lineToDraw.lineY
+                        Snackbar
+                            .make(this@GameView , "SingleTapUp x= $x y= $y, " +
+                                "closestXCoord = $closestXCoord, closestYCoord = $closestYCoord" +
+                                "lineX = $lineX, lineY = $lineY", Snackbar.LENGTH_LONG).show()
+                        return true
+
                     }
                 }
 
             }
 
-        Snackbar.make(this@GameView , "SingleTapUp x= $x y= $y, closestXCoord = $closestXCoord, closestYCoord = $closestYCoord", Snackbar.LENGTH_LONG).show()
-        return true
+
 
         return super.onSingleTapUp(e)
         }
@@ -142,7 +158,7 @@ class GameView: View {
     val computerPlayer: EasyAI = EasyAI()
     val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
     // 4x4 game
-    var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
+    var game: StudentDotsBoxGame = StudentDotsBoxGame(4, 4, playersList)
         set(value) {
             field = value
             onSizeChanged(width, height, width, height)
@@ -158,8 +174,8 @@ class GameView: View {
         val canvasWidth = width.toFloat()
         val canvasHeight = height.toFloat()
 
-        val dotSpacingX = canvasWidth / (game.columns + 1)
-        val dotSpacingY = canvasHeight / (game.rows + 1)
+        val columnWidth = canvasWidth / (game.columns + 1)
+        val rowWidth = canvasHeight / (game.rows + 1)
         // Text Location
         val textViewX = canvasWidth / 32f
         // placed in the initial 32nd of the canvas horizontally
@@ -176,31 +192,41 @@ class GameView: View {
         // Use Ctrl-P to see the parameters for a function
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, backPaint)
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, borderPaint)
+        var linePaint: Paint = Paint().apply{
 
+        }
         // horizontal
         for (x in 1..game.columns) {
             for (y in 1..game.rows) {
-//                if (game.lines[x,y*2].isDrawn) {
-//                    linePaint = drawnLinePaint
-//                }
+                if (game.lines.isValid(x-1,(y-1)*2)) {
+                    linePaint = if (game.lines[x-1,(y-1)*2].isDrawn) {
+                        drawnLinePaint
+                    } else {
+                        notDrawnLinePaint
+                    }
+                }
                 // y stays same, x goes up by 1
-                val start = x * dotSpacingX
-                val stop = y * dotSpacingY
+                val start = x * columnWidth
+                val stop = y * rowWidth
                 canvas.drawLine(
-                    (start), (stop), (x + 1 * dotSpacingX),
+                    (start), (stop), (x + 1 * columnWidth),
                     (stop) , linePaint)
             }
         }
         // vertical
         for (x in 1..game.columns) {
             for (y in 1..game.rows) {
-//                if (game.lines[x,y*2].isDrawn) {
-//                    linePaint = drawnLinePaint
-//                }
-                val start = x * dotSpacingX
-                val stop = y * dotSpacingY
+                if (game.lines.isValid(x-1,(y-1)*2)) {
+                    linePaint = if (game.lines[x-1,(y-1)*2].isDrawn) {
+                        drawnLinePaint
+                    } else {
+                        notDrawnLinePaint
+                    }
+                }
+                val start = x * columnWidth
+                val stop = y * rowWidth
                 canvas.drawLine( (start), (stop),
-                    (start), (y + 1* dotSpacingY),
+                    (start), (y + 1* rowWidth),
                     linePaint)
             }
         }
@@ -208,8 +234,8 @@ class GameView: View {
         // draw dots on top of lines
         for (x in 1..(game.columns)) {
             for (y in 1..(game.rows)) {
-                val start = x* dotSpacingX
-                val stop = y* dotSpacingY
+                val start = x* columnWidth
+                val stop = y* rowWidth
                 canvas.drawPoint(start, stop, dotPaint)
             }
         }

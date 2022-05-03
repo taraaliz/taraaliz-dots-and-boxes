@@ -71,7 +71,7 @@ class GameView: View {
         color = wordCol
         textAlign = Paint.Align.LEFT
         textSize = 50f
-        typeface = Typeface.SANS_SERIF
+        typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
     }
     private val player1Paint: Paint = Paint().apply {
         style = Paint.Style.FILL

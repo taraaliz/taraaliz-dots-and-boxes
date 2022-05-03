@@ -37,6 +37,9 @@ class GameView: View {
     private val drawnLineCol: Int = Color.BLACK
     private val wordCol: Int = Color.BLACK
     private var dotSize: Float = 30f
+    private var circleSize = 80f
+    private val player1Col = Color.rgb(255, 0, 77)
+    private val player2Col = Color.rgb(0, 228, 54)
 
     // Paint variables
     private var dotPaint: Paint = Paint().apply {
@@ -73,14 +76,35 @@ class GameView: View {
         textSize = 50f
         typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
     }
+    // colours for the circles beside the player text
     private val player1Paint: Paint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.RED
+        strokeWidth = circleSize
+        color = player1Col
+        strokeCap = Paint.Cap.ROUND
     }
     private val player2Paint: Paint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.RED
+        strokeWidth= circleSize
+        color = player2Col
+        strokeCap = Paint.Cap.ROUND
     }
+
+    private var linePaint: Paint = Paint().apply{
+
+    }
+    var boxPaint: Paint = Paint().apply{
+
+    }
+    private val unownedBoxPaint: Paint = Paint().apply{
+        color = Color.WHITE
+        style = Paint.Style.FILL
+    }
+    private val player1BoxPaint: Paint = Paint().apply{
+        color = Color.rgb(255, 0, 77)
+    }
+    private val player2BoxPaint: Paint = Paint().apply{
+        color = Color.rgb(0, 228, 54)
+    }
+
 
 
     private val gestureDetector = GestureDetectorCompat(context, object:
@@ -162,7 +186,7 @@ class GameView: View {
     val computerPlayer: NormalAI = NormalAI()
     val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
     // 4x4 game
-    var game: StudentDotsBoxGame = StudentDotsBoxGame(6, 6, playersList)
+    var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
         set(value) {
             field = value
             onSizeChanged(width, height, width, height)
@@ -190,12 +214,17 @@ class GameView: View {
         val columnWidth = canvasWidth / (game.columns + 1)
         val rowWidth = canvasHeight / (game.rows + 1)
         // Text Location
-        val textViewX = canvasWidth / 32f
+        val textViewX = 2* canvasWidth / 16f
         // placed in the initial 32nd of the canvas horizontally
         val textView1Y = canvasHeight / 16f
         // placed in the initial 16th of the canvas vertically
         val textView2Y = 15 * (canvasHeight / 16f)
         // placed in the final 16th of the canvas vertically
+
+        // Player Colour Location
+        val colourX = canvasWidth / 16f
+        canvas.drawPoint(colourX, textView1Y, player1Paint)
+        canvas.drawPoint(colourX, textView2Y, player2Paint)
 
         // Draw text
         canvas.drawText(textPlayer1, textViewX, textView1Y, wordsPaint)
@@ -205,22 +234,7 @@ class GameView: View {
         // Use Ctrl-P to see the parameters for a function
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, backPaint)
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, borderPaint)
-        var linePaint: Paint = Paint().apply{
 
-        }
-        var boxPaint: Paint = Paint().apply{
-
-        }
-        val unownedBoxPaint: Paint = Paint().apply{
-            color = Color.WHITE
-            style = Paint.Style.FILL
-        }
-        val player1BoxPaint: Paint = Paint().apply{
-            color = Color.rgb(255, 0, 77)
-        }
-        val player2BoxPaint: Paint = Paint().apply{
-            color = Color.rgb(0, 228, 54)
-        }
         // draw boxes so they can be coloured in later
         for (x in 1..(game.columns-1)) {
             for (y in 1..(game.rows-1)) {
@@ -293,8 +307,4 @@ class GameView: View {
             }
         }
     }
-/**
- * (touchCoord - leftMargin) / columns
- * (touchCoord - topMargin) / rows
- * */
 }

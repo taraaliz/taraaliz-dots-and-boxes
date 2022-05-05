@@ -44,18 +44,10 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
 
         override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
             get() {
-                // no strict formula, depends on if line is horizontal or vertical
-                // most are x-1, y-1 and x-1, y (horizontal)
-                // vertical is x,y, and x-1, y
-                // if odd y
                 val behindX: Int
                 val behindY: Int
                 val aheadX: Int?
                 val aheadY: Int?
-                // the box left or above the line - not all lines have one
-                val behindBox: StudentBox?
-                // the box right or below the line
-                val aheadBox: StudentBox?
 
                 when {
                     // Line is vertical
@@ -66,7 +58,6 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                         // result will be rounded down to nearest integer
                         aheadX = lineX
                         aheadY = lineY/2
-
                     }
                     // Line is horizontal
                     else -> {
@@ -78,17 +69,18 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                         aheadY = lineY/2
                     }
                 }
-                behindBox = if (boxes.isValid(behindX, behindY)) {
+                /**the box left or above the line - not all lines have one */
+                val behindBox: StudentBox? = if (boxes.isValid(behindX, behindY)) {
                     boxes[behindX, behindY]
                 } else {
                     null
                 }
-                aheadBox = if (boxes.isValid(aheadX, aheadY)) {
+                /**the box right or below the line */
+                val aheadBox: StudentBox? = if (boxes.isValid(aheadX, aheadY)) {
                     boxes[aheadX, aheadY]
                 } else {
                     null
                 }
-
                 return Pair(behindBox, aheadBox)
             }
 
@@ -102,19 +94,12 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
             }
             else {
                 isDrawn = true
-                for (box in adjacentBoxes.toList()) {
-                    if (box != null) {
-                        var linesDrawn = 0
-                        for (line in box.boundingLines) {
-                            if (line.isDrawn) {
-                                linesDrawn += 1
-                            }
-                        }
-                        if (linesDrawn >= 4) {
-                            box.owningPlayer = currentPlayer
-                            nextPlayerIndex = players.indexOf(currentPlayer)
-                            currentPlayer = players[nextPlayerIndex]
-                        } } }
+                for (box in adjacentBoxes.toList().filterNotNull()) {
+                    if (box.boundingLines.all {it.isDrawn}) {
+                        box.owningPlayer = currentPlayer
+                        nextPlayerIndex = players.indexOf(currentPlayer)
+                    }
+                }
                 val totalBoxesDrawn = getScores().sum()
                 if (totalBoxesDrawn == boxes.count()) {
                     isFinished = true

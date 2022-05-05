@@ -133,9 +133,9 @@ class GameView: View {
 //                    val distanceToVerticalLine = closestXCoord - notRoundedX // 0.2
 
                     // columnWidth = dotSpacingX
-                    val sideLeft = (closestXCoord + 1) * columnWidth // 2 * columnWidth = 360
+                    val sideLeft = (closestXCoord +1) * columnWidth // 2 * columnWidth = 360
                     val sideRight = (closestXCoord + 2) * columnWidth // 3 * columnWidth = 540
-                    val sideTop = (closestYCoord + 1) * rowWidth // 264
+                    val sideTop = (closestYCoord +1) * rowWidth // 264
                     val sideBot = (closestYCoord + 2) * rowWidth // 528
 
                     val distanceRight = abs((sideRight - e.x)) // 231.00952
@@ -183,17 +183,17 @@ class GameView: View {
         dotSize = width / 64f
     }
 
-    val computerPlayer: NormalAI = NormalAI()
-    val playersList: List<Player> = listOf(computerPlayer, HumanPlayer())
+    private val computerPlayer: NormalAI = NormalAI()
+    private val playersList: List<Player> = listOf(HumanPlayer(), computerPlayer)
     // 4x4 game
-    var game: StudentDotsBoxGame = StudentDotsBoxGame(5, 5, playersList)
+    var game: StudentDotsBoxGame = StudentDotsBoxGame(3, 3, playersList)
         set(value) {
             field = value
             onSizeChanged(width, height, width, height)
             invalidate()
         }
 
-    var listener = object: GameChangeListener {
+    private var listener = object: GameChangeListener {
         override fun onGameChange(game: DotsAndBoxesGame) {
             invalidate()
         }
@@ -203,9 +203,10 @@ class GameView: View {
         game.addOnGameChangeListener(listener)
     }
     override fun onDraw(canvas: Canvas) {
+
         val scores = game.getScores()
-        var textPlayer1: String = "Player 1: " + scores[0]
-        var textPlayer2: String = "Player 2: " + scores[1]
+        val textPlayer1: String = "Player 1: " + scores[0]
+        val textPlayer2: String = "Player 2: " + scores[1]
 
         // Measure the size of the canvas
         val canvasWidth = width.toFloat()
@@ -236,18 +237,18 @@ class GameView: View {
         canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, borderPaint)
 
         // draw boxes so they can be coloured in later
-        for (x in 1..(game.columns-1)) {
-            for (y in 1..(game.rows-1)) {
-                val left = x * columnWidth
-                val top = y * rowWidth
-                val right = (x+1) * columnWidth
-                val bottom = (y+1) * rowWidth
+        for (x in 0..(game.columns-1)) {
+            for (y in 0..(game.rows-1)) {
+                val left = (x+1) * columnWidth
+                val top = (y+1) * rowWidth
+                val right = (x+2) * columnWidth
+                val bottom = (y+2) * rowWidth
 
-                if (game.boxes[x-1, y-1].owningPlayer != null) {
-                    if (game.players.indexOf(game.boxes[x-1, y-1].owningPlayer) == 0) {
+                if (game.boxes[x, y].owningPlayer != null) {
+                    if (game.players.indexOf(game.boxes[x, y].owningPlayer) == 0) {
                         boxPaint = player1BoxPaint
                     }
-                    else if (game.players.indexOf(game.boxes[x-1, y-1].owningPlayer) == 1) {
+                    else if (game.players.indexOf(game.boxes[x, y].owningPlayer) == 1) {
                         boxPaint = player2BoxPaint
                     }
 
@@ -260,49 +261,47 @@ class GameView: View {
         }
 
         // horizontal
-        for (x in 1..(game.columns-1))  {
-            for (y in 1..(game.rows)) {
-                if (game.lines.isValid(x-1,(y-1)*2)) {
-                    if ( game.lines[x-1,(y-1)*2].isDrawn) {
+        for (x in 0..(game.columns-1))  {
+            for (y in 0..(game.rows)) {
+                if (game.lines.isValid(x,(y)*2)) {
+                    if (game.lines[x,(y)*2].isDrawn) {
                         linePaint = drawnLinePaint
-                        Log.d("horizontal", "Line drawn at" + (x-1) + ", " + (y-1)*2)
                     } else {
                         linePaint = notDrawnLinePaint
                     }
                 }
                 // y stays same, x goes up by 1
-                val startX = x * columnWidth
-                val stopX = (x + 1) * columnWidth
-                val startY = y * rowWidth
+                val startX = (x+1) * columnWidth
+                val stopX = (x + 2) * columnWidth
+                val startY = (y+1) * rowWidth
                 canvas.drawLine(
                     (startX), (startY), (stopX),
                     (startY) , linePaint)
             }
         }
         // vertical
-        for (x in 1..(game.columns)) {
-            for (y in 1..(game.rows-1)) {
-                if (game.lines.isValid(x-1,(2*y-1))) {
-                    if (game.lines[x-1,(2*y-1)].isDrawn) {
+        for (x in 0..(game.columns)) {
+            for (y in 0..(game.rows-1)) {
+                if (game.lines.isValid(x,(2*y+1))) {
+                    if (game.lines[x,(2*y+1)].isDrawn) {
                         linePaint = drawnLinePaint
-                        Log.d("vertical", "Line drawn at" + (x-1) + ", " + (2*y-1))
                     } else {
                         linePaint = notDrawnLinePaint
                     }
                 }
-                val start = x * columnWidth
-                val stop = y * rowWidth
+                val start = (x+1) * columnWidth
+                val stop = (y +1) * rowWidth
                 canvas.drawLine( (start), (stop),
-                    (start), ((y + 1)* rowWidth),
+                    (start), ((y + 2)* rowWidth),
                     linePaint)
             }
         }
 
         // draw dots on top of lines
-        for (x in 1..(game.columns)) {
-            for (y in 1..(game.rows)) {
-                val start = x* columnWidth
-                val stop = y* rowWidth
+        for (x in 0..(game.columns)) {
+            for (y in 0..(game.rows)) {
+                val start = (x+1)* columnWidth
+                val stop = (y+1)* rowWidth
                 canvas.drawPoint(start, stop, dotPaint)
             }
         }

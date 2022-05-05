@@ -185,106 +185,107 @@ class GameView: View {
     init {
         game.addOnGameChangeListener(listener)
     }
-        override fun onDraw(canvas: Canvas) {
 
-            val scores = game.getScores()
-            val textPlayer1: String = "Player 1: " + scores[0]
-            val textPlayer2: String = "Player 2: " + scores[1]
+    override fun onDraw(canvas: Canvas) {
 
-            // Measure the size of the canvas
-            val canvasWidth = width.toFloat()
-            val canvasHeight = height.toFloat()
+                val scores = game.getScores()
+                val textPlayer1: String = "Player 1: " + scores[0]
+                val textPlayer2: String = "Player 2: " + scores[1]
 
-            // Text Location
-            val textViewX = 2* canvasWidth / 16f
-            // placed in the initial 32nd of the canvas horizontally
-            val textView1Y = canvasHeight / 16f
-            // placed in the initial 16th of the canvas vertically
-            val textView2Y = 15 * (canvasHeight / 16f)
-            // placed in the final 16th of the canvas vertically
+                // Measure the size of the canvas
+                val canvasWidth = width.toFloat()
+                val canvasHeight = height.toFloat()
 
-            // Player Colour Location
-            val colourX = canvasWidth / 16f
-            canvas.drawPoint(colourX, textView1Y, player1Paint)
-            canvas.drawPoint(colourX, textView2Y, player2Paint)
+                // Text Location
+                val textViewX = 2* canvasWidth / 16f
+                // placed in the initial 32nd of the canvas horizontally
+                val textView1Y = canvasHeight / 16f
+                // placed in the initial 16th of the canvas vertically
+                val textView2Y = 15 * (canvasHeight / 16f)
+                // placed in the final 16th of the canvas vertically
 
-            // Draw text
-            canvas.drawText(textPlayer1, textViewX, textView1Y, wordsPaint)
-            canvas.drawText(textPlayer2, textViewX, textView2Y, wordsPaint)
+                // Player Colour Location
+                val colourX = canvasWidth / 16f
+                canvas.drawPoint(colourX, textView1Y, player1Paint)
+                canvas.drawPoint(colourX, textView2Y, player2Paint)
 
-            // Draw rectangle with drawRect(topleftX, topLeftY, bottomRightX, bottomRightY, Paint)
-            // Use Ctrl-P to see the parameters for a function
-            canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 150f, backPaint)
-            canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 150f, borderPaint)
+                // Draw text
+                canvas.drawText(textPlayer1, textViewX, textView1Y, wordsPaint)
+                canvas.drawText(textPlayer2, textViewX, textView2Y, wordsPaint)
 
-            // draw boxes so they can be coloured in later
-            for (x in 0..(game.columns-1)) {
-                for (y in 0..(game.rows-1)) {
-                    val left = (x+1) * columnWidth
-                    val top = (y+1) * rowWidth
-                    val right = (x+2) * columnWidth
-                    val bottom = (y+2) * rowWidth
+                // Draw rectangle with drawRect(topleftX, topLeftY, bottomRightX, bottomRightY, Paint)
+                // Use Ctrl-P to see the parameters for a function
+                canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 150f, backPaint)
+                canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 150f, borderPaint)
 
-                    if (game.boxes[x, y].owningPlayer != null) {
-                        if (game.players.indexOf(game.boxes[x, y].owningPlayer) == 0) {
-                            boxPaint = player1BoxPaint
+                // draw boxes so they can be coloured in later
+                for (x in 0..(game.columns-1)) {
+                    for (y in 0..(game.rows-1)) {
+                        val left = (x+1) * columnWidth
+                        val top = (y+1) * rowWidth
+                        val right = (x+2) * columnWidth
+                        val bottom = (y+2) * rowWidth
+
+                        if (game.boxes[x, y].owningPlayer != null) {
+                            if (game.players.indexOf(game.boxes[x, y].owningPlayer) == 0) {
+                                boxPaint = player1BoxPaint
+                            }
+                            else if (game.players.indexOf(game.boxes[x, y].owningPlayer) == 1) {
+                                boxPaint = player2BoxPaint
+                            }
+
                         }
-                        else if (game.players.indexOf(game.boxes[x, y].owningPlayer) == 1) {
-                            boxPaint = player2BoxPaint
+                        else {
+                            boxPaint = unownedBoxPaint
                         }
+                        canvas.drawRect(left, top, right, bottom, boxPaint)
+                    }
+                }
 
+                // horizontal
+                for (x in 0..(game.columns-1))  {
+                    for (y in 0..(game.rows)) {
+                        if (game.lines.isValid(x,(y)*2)) {
+                            if (game.lines[x,(y)*2].isDrawn) {
+                                linePaint = drawnLinePaint
+                            } else {
+                                linePaint = notDrawnLinePaint
+                            }
+                        }
+                        // y stays same, x goes up by 1
+                        val startX = (x+1) * columnWidth
+                        val stopX = (x + 2) * columnWidth
+                        val startY = (y+1) * rowWidth
+                        canvas.drawLine(
+                            (startX), (startY), (stopX),
+                            (startY) , linePaint)
                     }
-                    else {
-                        boxPaint = unownedBoxPaint
+                }
+                // vertical
+                for (x in 0..(game.columns)) {
+                    for (y in 0..(game.rows-1)) {
+                        if (game.lines.isValid(x,(2*y+1))) {
+                            if (game.lines[x,(2*y+1)].isDrawn) {
+                                linePaint = drawnLinePaint
+                            } else {
+                                linePaint = notDrawnLinePaint
+                            }
+                        }
+                        val start = (x+1) * columnWidth
+                        val stop = (y +1) * rowWidth
+                        canvas.drawLine( (start), (stop),
+                            (start), ((y + 2)* rowWidth),
+                            linePaint)
                     }
-                    canvas.drawRect(left, top, right, bottom, boxPaint)
+                }
+
+                // draw dots on top of lines
+                for (x in 0..(game.columns)) {
+                    for (y in 0..(game.rows)) {
+                        val start = (x+1)* columnWidth
+                        val stop = (y+1)* rowWidth
+                        canvas.drawPoint(start, stop, dotPaint)
+                    }
                 }
             }
-
-            // horizontal
-            for (x in 0..(game.columns-1))  {
-                for (y in 0..(game.rows)) {
-                    if (game.lines.isValid(x,(y)*2)) {
-                        if (game.lines[x,(y)*2].isDrawn) {
-                            linePaint = drawnLinePaint
-                        } else {
-                            linePaint = notDrawnLinePaint
-                        }
-                    }
-                    // y stays same, x goes up by 1
-                    val startX = (x+1) * columnWidth
-                    val stopX = (x + 2) * columnWidth
-                    val startY = (y+1) * rowWidth
-                    canvas.drawLine(
-                        (startX), (startY), (stopX),
-                        (startY) , linePaint)
-                }
-            }
-            // vertical
-            for (x in 0..(game.columns)) {
-                for (y in 0..(game.rows-1)) {
-                    if (game.lines.isValid(x,(2*y+1))) {
-                        if (game.lines[x,(2*y+1)].isDrawn) {
-                            linePaint = drawnLinePaint
-                        } else {
-                            linePaint = notDrawnLinePaint
-                        }
-                    }
-                    val start = (x+1) * columnWidth
-                    val stop = (y +1) * rowWidth
-                    canvas.drawLine( (start), (stop),
-                        (start), ((y + 2)* rowWidth),
-                        linePaint)
-                }
-            }
-
-            // draw dots on top of lines
-            for (x in 0..(game.columns)) {
-                for (y in 0..(game.rows)) {
-                    val start = (x+1)* columnWidth
-                    val stop = (y+1)* rowWidth
-                    canvas.drawPoint(start, stop, dotPaint)
-                }
-            }
-        }
 }

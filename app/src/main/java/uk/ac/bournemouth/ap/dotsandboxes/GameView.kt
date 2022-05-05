@@ -21,7 +21,6 @@ import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame.GameChangeListener
 import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
 import kotlin.math.abs
-import kotlin.math.round
 
 class GameView: View {
     constructor(context: Context?) : super(context)
@@ -133,9 +132,9 @@ class GameView: View {
 //                    val distanceToVerticalLine = closestXCoord - notRoundedX // 0.2
 
                     // columnWidth = dotSpacingX
-                    val sideLeft = (closestXCoord +1) * columnWidth // 2 * columnWidth = 360
+                    val sideLeft = (closestXCoord + 1) * columnWidth // 2 * columnWidth = 360
                     val sideRight = (closestXCoord + 2) * columnWidth // 3 * columnWidth = 540
-                    val sideTop = (closestYCoord +1) * rowWidth // 264
+                    val sideTop = (closestYCoord + 1) * rowWidth // 264
                     val sideBot = (closestYCoord + 2) * rowWidth // 528
 
                     val distanceRight = abs((sideRight - e.x)) // 231.00952
@@ -155,7 +154,7 @@ class GameView: View {
                         val lineY = lineToDraw.lineY
                         Snackbar
                             .make(this@GameView , "SingleTapUp x= $x y= $y, " +
-                                "closestXCoord = $closestXCoord, closestYCoord = $closestYCoord" +
+                                "boxXCoord = $closestXCoord, boxYCoord = $closestYCoord" +
                                 "lineX = $lineX, lineY = $lineY", Snackbar.LENGTH_LONG).show()
                         return true
 
@@ -285,6 +284,7 @@ class GameView: View {
                 if (game.lines.isValid(x,(2*y+1))) {
                     if (game.lines[x,(2*y+1)].isDrawn) {
                         linePaint = drawnLinePaint
+                        Log.d("vertical", "Line drawn at" + (x-1) + ", " + (2*y-1))
                     } else {
                         linePaint = notDrawnLinePaint
                     }

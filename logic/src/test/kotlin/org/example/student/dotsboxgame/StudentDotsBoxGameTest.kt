@@ -1,10 +1,16 @@
 package org.example.student.dotsboxgame
 
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.fail
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import uk.ac.bournemouth.ap.dotsandboxeslib.ComputerPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
-import uk.ac.bournemouth.ap.dotsandboxeslib.test.TestDotsAndBoxes
+import uk.ac.bournemouth.ap.dotsandboxeslib.test.*
+import uk.ac.bournemouth.ap.lib.matrix.ext.Coordinate
+import kotlin.random.Random
 
 /**
  * This class must be created to link your own game implementation and make it testable. You can

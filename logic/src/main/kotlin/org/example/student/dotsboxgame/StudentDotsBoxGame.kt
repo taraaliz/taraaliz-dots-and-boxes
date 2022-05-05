@@ -40,7 +40,6 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
         // even y coords are horizontal
         // odd y coords are vertical
         override var isDrawn: Boolean = false
-        var turnCount: Int = 1
 
         override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
             get() {
@@ -69,18 +68,19 @@ class StudentDotsBoxGame (val columns: Int, val rows: Int, players: List<Player>
                         aheadY = lineY/2
                     }
                 }
-                /**the box left or above the line - not all lines have one */
+                /** the box left or above the line - not all lines have one*/
                 val behindBox: StudentBox? = if (boxes.isValid(behindX, behindY)) {
                     boxes[behindX, behindY]
                 } else {
                     null
                 }
-                /**the box right or below the line */
+                /** the box right or below the line - not all lines have one */
                 val aheadBox: StudentBox? = if (boxes.isValid(aheadX, aheadY)) {
                     boxes[aheadX, aheadY]
                 } else {
                     null
                 }
+
                 return Pair(behindBox, aheadBox)
             }
 

@@ -171,21 +171,24 @@ class GameView: View {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
     // Padding initialisers, these get set in onSizeChanged
-    var rowWidth = 0f
-    var columnWidth = 0f
-
+    var rowWidth2 = 0f
+    var columnWidth2 = 0f
+    var columnWidth = minOf(rowWidth2, columnWidth2)
+    var rowWidth = maxOf(rowWidth2, columnWidth2)
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         // things that need to be recalculated if size changes
-        rowWidth = height / (game.rows + 1).toFloat()
-        columnWidth = width / (game.columns + 1).toFloat()
+        rowWidth2 = height / (game.rows +2).toFloat()
+        columnWidth2 = width / (game.columns +2).toFloat()
+        columnWidth = minOf(rowWidth2, columnWidth2)
+        rowWidth = maxOf(rowWidth2, columnWidth2)
         dotSize = width / 64f
     }
 
     private val computerPlayer: NormalAI = NormalAI()
-    private val playersList: List<Player> = listOf(HumanPlayer(), computerPlayer)
+    private val playersList: List<Player> = listOf(EasyAI(), HardAI())
     // 4x4 game
-    var game: StudentDotsBoxGame = StudentDotsBoxGame(3, 3, playersList)
+    var game: StudentDotsBoxGame = StudentDotsBoxGame(4, 4, playersList)
         set(value) {
             field = value
             onSizeChanged(width, height, width, height)
@@ -211,8 +214,6 @@ class GameView: View {
         val canvasWidth = width.toFloat()
         val canvasHeight = height.toFloat()
 
-        val columnWidth = canvasWidth / (game.columns + 1)
-        val rowWidth = canvasHeight / (game.rows + 1)
         // Text Location
         val textViewX = 2* canvasWidth / 16f
         // placed in the initial 32nd of the canvas horizontally
@@ -232,8 +233,8 @@ class GameView: View {
 
         // Draw rectangle with drawRect(topleftX, topLeftY, bottomRightX, bottomRightY, Paint)
         // Use Ctrl-P to see the parameters for a function
-        canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, backPaint)
-        canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 176f, borderPaint)
+        canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 150f, backPaint)
+        canvas.drawRect(20f, 150f, canvasWidth - 16f, canvasHeight - 150f, borderPaint)
 
         // draw boxes so they can be coloured in later
         for (x in 0..(game.columns-1)) {
